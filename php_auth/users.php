@@ -1,62 +1,65 @@
 <?php
 session_start();
 
-
-if (!isset($_SESSION['username']) || $_SESSION['username'] !== 'admin@gmail.com') {
-   
-   echo "
-   <html>
-   <head>
-       <style>
-           body {
-               background-color:#f0f0f0;
-               color: #721c24;
-               font-family: Arial, sans-serif;
-               display: flex;
-               align-items: center;
-               justify-content: center;
-               height: 100vh;
-               margin: 0;
-           }
-           .error-message {
-               font-size: 20px;
-               font-weight: bold;
-           }
-       </style>
-   </head>
-   <body>
-       <p class='error-message'>Unauthorized access!</p>
-   </body>
-   </html>";
-
-
+if (!isset($_SESSION['username'])) {
+    header('Location: login.html');
     exit();
 }
-
 
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "php dashboard";
 
-
 $conn = new mysqli($servername, $username, $password, $dbname);
-
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+$current_username = $_SESSION['username'];
+
+//1st reg user
+$first_user_sql = "SELECT email FROM user_data ORDER BY id ASC LIMIT 1";
+$first_user_result = $conn->query($first_user_sql);
+$first_user_row = $first_user_result->fetch_assoc();
+$first_user_email = $first_user_row['email'];
+
+
+if ($current_username !== 'admin@gmail.com' && $current_username !== $first_user_email) {
+    echo "
+    <html>
+    <head>
+        <style>
+            body {
+                background-color:#f0f0f0;
+                color: #721c24;
+                font-family: Arial, sans-serif;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+            }
+            .error-message {
+                font-size: 20px;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <p class='error-message'>Unauthorized access!</p>
+    </body>
+    </html>";
+    exit();
+}
 
 $sql = "SELECT id, username, email FROM user_data";
 $result = $conn->query($sql);
 
-
 $count_sql = "SELECT COUNT(*) as total_users FROM user_data";
 $count_result = $conn->query($count_sql);
 $total_users = $count_result->fetch_assoc()['total_users'];
-
-
 
 ?>
 
